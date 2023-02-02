@@ -1,42 +1,160 @@
 ﻿@page "/"
 @using System.Text.Json
 @using System.Text.Json.Serialization
+@using System.Net.Http.Headers;
+@using Msa.AzBlobSample.Api.Client;
 @inject IHttpClientFactory ApiClient
 
 <PageTitle>Msa Azure Storage Sample</PageTitle>
 
 <h1>Blob Storage Sample</h1>
 
-@foreach (var image in images)
-{
-	<div class="card" style="width: 18rem;">
-		<img src="@image.Value" class="card-img-top" alt="@image.Key">
-		<div class="card-body">
-			<h5 class="card-title">@image.Key</h5>
-			<a href="@image.Value" class="btn btn-primary">View</a>
-		</div>
-	</div>
+@{
+    if (!string.IsNullOrWhiteSpace(error))
+    {
+        <div class="alert-danger">
+            @error
+        </div>
+    }
 }
 
+<div class="col-12">
+    <div class="mb-3 col-4 col-md-3">
+        <label for="formFile" class="form-label">Select an image to upload</label>
+        <InputFile OnChange="@UploadFile" class="form-control" />
+    </div>
+
+    <div class="col-4">
+        <a href="javascript: void(0);" onclick="@DeleteAll" class="btn btn-danger">Delete All</a>
+    </div>
+</div>
+
+
+
+<div class="row row-cols-2 row-cols-md-3 g-4">
+    @foreach (var image in images)
+    {
+        <div class="col">
+            <div class="card h-100">
+                <img src="@image.Value" class="card-img-top" alt="@image.Key">
+                <div class="card-body">
+                    <h5 class="card-title">@image.Key</h5>
+                    <a href="@image.Value" class="btn btn-primary" target="_blank">View</a>
+                    @*<a href="javascript: void(0);" @onclick="() => DeleteSingle(image.Key)" class="btn btn-danger">Delete</a>*@
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+
 @code {
-	private Dictionary<String, String> images = new();
+    private Dictionary<String, String> images = new();
+    private String error = "";
 
-	protected override async Task OnInitializedAsync()
-	{
-		var request = new HttpRequestMessage(HttpMethod.Get,
-		"http://localhost:5057/storage/");
+    protected override async Task OnInitializedAsync()
+    {
+        var request = new HttpRequestMessage(HttpMethod.Get,
+            "https://localhost:7273/storage/");
 
-		var client = ApiClient.CreateClient();
+        var client = ApiClient.CreateClient();
 
-		var response = await client.SendAsync(request);
+        var response = await client.SendAsync(request);
 
-		if (!response.IsSuccessStatusCode)
-		{
-			return;
-		}
+        if (!response.IsSuccessStatusCode)
+        {
+            return;
+        }
 
-		using var responseStream = await response.Content.ReadAsStreamAsync();
-		images = await JsonSerializer.DeserializeAsync<Dictionary<String, String>>(responseStream);
+        using var responseStream = await response.Content.ReadAsStreamAsync();
+        images = await JsonSerializer.DeserializeAsync<Dictionary<String, String>>(responseStream);
 
-	}
+    }
+
+
+    private async Task UploadFile(InputFileChangeEventArgs e)
+    {
+        long maxFileSize = 1024 * 100;
+
+        using var content = new MultipartFormDataContent();
+
+        try
+        {
+            var file = e.File;
+            var fileContent = new StreamContent(file.OpenReadStream(maxFileSize));
+            fileContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
+
+            content.Add(
+                content: fileContent,
+                name: "\"files\"",
+                fileName: file.Name);
+
+            var request = new HttpRequestMessage(HttpMethod.Get,
+                "https://localhost:7273/storage/");
+
+            var client = ApiClient.CreateClient();
+
+            var response = await client.PostAsync("https://localhost:7273/storage/", content);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                error = response.ReasonPhrase;
+                return;
+            }
+
+            var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true,
+                };
+
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            var fileMeta = JsonSerializer.Deserialize<FileMeta>(
+                responseContent,
+                new JsonSerializerOptions
+                    {
+                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                    });
+
+            images.Add(fileMeta.Filename, fileMeta.Url);
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+    }
+
+    private async Task DeleteAll()
+    {
+        var request = new HttpRequestMessage(HttpMethod.Delete,
+            "https://localhost:7273/storage/");
+
+        var client = ApiClient.CreateClient();
+
+        var response = await client.SendAsync(request);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            return;
+        }
+
+        images.Clear();
+    }
+
+    private async Task DeleteSingle(string name)
+    {
+        var request = new HttpRequestMessage(HttpMethod.Delete,
+            $"https://localhost:7273/storage/?blobName={name}");
+
+        var client = ApiClient.CreateClient();
+
+        var response = await client.SendAsync(request);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            return;
+        }
+
+        images.Remove(name);
+    }
 }
