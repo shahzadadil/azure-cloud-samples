@@ -28,6 +28,11 @@ resource "azurerm_servicebus_namespace" "msasamplebus" {
 }
 
 resource "azurerm_servicebus_queue" "platformeventqueue" {
-  name = "platformeventqueue"
+  name = "ordercreatedqueue"
+  namespace_id = azurerm_servicebus_namespace.msasamplebus.id
+}
+
+resource "azurerm_servicebus_queue" "platformeventqueue" {
+  name = "ordercreatedretryqueue"
   namespace_id = azurerm_servicebus_namespace.msasamplebus.id
 }
