@@ -27,12 +27,30 @@ resource "azurerm_servicebus_namespace" "msasamplebus" {
   sku                 = "Basic"
 }
 
-resource "azurerm_servicebus_queue" "platformeventqueue" {
-  name = "ordercreatedqueue"
+resource "azurerm_servicebus_queue" "ordercreatedqueue" {
+  name         = "ordercreatedqueue"
   namespace_id = azurerm_servicebus_namespace.msasamplebus.id
 }
 
-resource "azurerm_servicebus_queue" "platformeventqueue" {
-  name = "ordercreatedretryqueue"
+resource "azurerm_servicebus_queue" "ordercreatedretryqueue" {
+  name         = "ordercreatedretryqueue"
   namespace_id = azurerm_servicebus_namespace.msasamplebus.id
+}
+
+resource "azurerm_servicebus_namespace_authorization_rule" "samplebussendonlyrule" {
+  name         = "sendonly"
+  namespace_id = azurerm_servicebus_namespace.msasamplebus.id
+
+  listen = false
+  send   = true
+  manage = false
+}
+
+resource "azurerm_servicebus_namespace_authorization_rule" "samplebuslistenonlyrule" {
+  name         = "listenonly"
+  namespace_id = azurerm_servicebus_namespace.msasamplebus.id
+
+  listen = true
+  send   = false
+  manage = false
 }

@@ -12,6 +12,7 @@ public class ServiceBusOptions
 
     public ServiceBusQueueNameOptions QueueName { get; set; } = new();
     public ServiceBusNamespaceOptions Namespace { get; set; } = new();
+    public ServiceBusConnectionStringOptions ConnectionString { get; set; } = new();
 }
 
 public class ServiceBusQueueNameOptions
@@ -24,6 +25,13 @@ public class ServiceBusQueueNameOptions
 public class ServiceBusNamespaceOptions
 {
     public const string Key = "Namespace";
+
+    public string SampleApp { get; set; } = string.Empty;
+}
+
+public class ServiceBusConnectionStringOptions
+{
+    public const string Key = "ConnectionString";
 
     public string SampleApp { get; set; } = string.Empty;
 }
