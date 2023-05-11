@@ -1,9 +1,19 @@
-using Microsoft.Extensions.Azure;
+using Cloud.Azure.ServiceBus;
+
+using Consumer.API;
+
+using Platform.Config;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.Configure<PlatformOptions>(builder.Configuration.GetSection(PlatformOptions.Key));
+builder.Services.Configure<PlatformServiceBusOptions>(builder.Configuration.GetSection($"{PlatformOptions.Key}:{PlatformServiceBusOptions.Key}"));
+
 // Add services to the container.
 builder.Services.AddRazorPages();
+
+builder.Services.AddSingleton<IServiceBusMessageHandler, OrderMessageHandler>();
+builder.Services.AddSingleton<ServiceBusMessageProcessor>();
 
 var app = builder.Build();
 
@@ -23,5 +33,8 @@ app.UseRouting();
 app.UseAuthorization();
 
 app.MapRazorPages();
+
+var processor = app.Services.GetService<ServiceBusMessageProcessor>();
+await processor.Start();
 
 app.Run();

@@ -3,10 +3,10 @@ public class PlatformOptions
 {
     public const string Key = "Platform";
 
-    public ServiceBusOptions ServiceBus { get; set; } = new();
+    public PlatformServiceBusOptions ServiceBus { get; set; } = new();
 }
 
-public class ServiceBusOptions
+public class PlatformServiceBusOptions
 {
     public const string Key = "ServiceBus";
 
