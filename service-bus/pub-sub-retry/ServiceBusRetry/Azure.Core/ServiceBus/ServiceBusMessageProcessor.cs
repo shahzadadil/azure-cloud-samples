@@ -26,7 +26,11 @@ public class ServiceBusMessageProcessor : IAsyncDisposable
         _ServiceBusOptions = platformServiceBusOptions.Value;
         _ServicBusMessageHandler = messageHandler;
         _Logger = logger;
-        _ServiceBusClientOptions = new ServiceBusClientOptions();
+
+        _ServiceBusClientOptions = new ServiceBusClientOptions
+        {
+            RetryOptions = _ServiceBusOptions.RetryOptions
+        };
     }
 
     public async Task Start()
@@ -54,8 +58,16 @@ public class ServiceBusMessageProcessor : IAsyncDisposable
     private async Task MessageHandler(ProcessMessageEventArgs arg)
     {
         var message = arg.Message;
-        await _ServicBusMessageHandler.HandleAsync(message);
-        await arg.CompleteMessageAsync(arg.Message);
+
+        try
+        {
+            await _ServicBusMessageHandler.HandleAsync(message);
+            await arg.CompleteMessageAsync(arg.Message);
+        }
+        catch (Exception ex)
+        {
+            await arg.AbandonMessageAsync(arg.Message);
+        }
     }
 
     public async ValueTask DisposeAsync()

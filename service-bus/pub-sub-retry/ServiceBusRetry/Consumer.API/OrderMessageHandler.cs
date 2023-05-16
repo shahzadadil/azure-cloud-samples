@@ -7,6 +7,8 @@ using Azure.Messaging.ServiceBus;
 
 using Cloud.Azure.ServiceBus;
 
+using Platform.Messages;
+
 public class OrderMessageHandler : IServiceBusMessageHandler
 {
     private readonly ILogger<OrderMessageHandler> _Logger;
@@ -18,8 +20,16 @@ public class OrderMessageHandler : IServiceBusMessageHandler
 
     public Task HandleAsync(ServiceBusReceivedMessage message)
     {
-        var messageContent = message.Body.ToString();
-        _Logger.LogInformation($"Message received: {messageContent}");
+        var orderCreatedMessage = JsonSerializer.Deserialize<OrderCreated>(
+            message.Body.ToString()) ?? new();
+
+        _Logger.LogInformation($"Message received: {orderCreatedMessage}");
+
+        if (orderCreatedMessage.Amount <= 0)
+        {
+            throw new InvalidOperationException();
+        }
+
         return Task.CompletedTask;
     }
 }

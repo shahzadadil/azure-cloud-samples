@@ -1,4 +1,7 @@
 ﻿namespace Platform.Config;
+
+using Azure.Messaging.ServiceBus;
+
 public class PlatformOptions
 {
     public const string Key = "Platform";
@@ -13,6 +16,7 @@ public class PlatformServiceBusOptions
     public ServiceBusQueueNameOptions QueueName { get; set; } = new();
     public ServiceBusNamespaceOptions Namespace { get; set; } = new();
     public ServiceBusConnectionStringOptions ConnectionString { get; set; } = new();
+    public ServiceBusRetryOptions RetryOptions { get; set; } = new();
 }
 
 public class ServiceBusQueueNameOptions

@@ -3,13 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33205.214
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Publisher.API", "Publisher.API\Publisher.API.csproj", "{A298EEC0-B1C5-47B1-994A-930B6553E5B0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Publisher.API", "Publisher.API\Publisher.API.csproj", "{A298EEC0-B1C5-47B1-994A-930B6553E5B0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Consumer.API", "Consumer.API\Consumer.API.csproj", "{026EC2C0-97EF-49E6-A9AE-50F27D560634}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Consumer.API", "Consumer.API\Consumer.API.csproj", "{026EC2C0-97EF-49E6-A9AE-50F27D560634}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Platform", "Platform\Platform.csproj", "{9FAE320D-DC01-47A5-9C17-85AF616436CE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Platform", "Platform\Platform.csproj", "{9FAE320D-DC01-47A5-9C17-85AF616436CE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cloud.Azure", "Azure.Core\Cloud.Azure.csproj", "{004E8A04-B29D-4B0E-97E1-9607F01EB4D3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cloud.Azure", "Azure.Core\Cloud.Azure.csproj", "{004E8A04-B29D-4B0E-97E1-9607F01EB4D3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ordering.Function", "Ordering.Function\Ordering.Function.csproj", "{8D9CA50D-3B16-46AA-BB77-17DFA43DEDD5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{004E8A04-B29D-4B0E-97E1-9607F01EB4D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{004E8A04-B29D-4B0E-97E1-9607F01EB4D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{004E8A04-B29D-4B0E-97E1-9607F01EB4D3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8D9CA50D-3B16-46AA-BB77-17DFA43DEDD5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D9CA50D-3B16-46AA-BB77-17DFA43DEDD5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8D9CA50D-3B16-46AA-BB77-17DFA43DEDD5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8D9CA50D-3B16-46AA-BB77-17DFA43DEDD5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
