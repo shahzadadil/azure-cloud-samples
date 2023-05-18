@@ -3,28 +3,30 @@ using System.Threading.Tasks;
 
 using global::Azure.Messaging.ServiceBus;
 
+using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 using Platform.Config;
 
-public class ServiceBusMessageProcessor : IAsyncDisposable
+public class ServiceBusTopicMessageProcessor : IAsyncDisposable
 {
     private readonly ILogger _Logger;
-    private readonly IServiceBusMessageHandler _ServicBusMessageHandler;
     private readonly ServiceBusClientOptions _ServiceBusClientOptions;
     private readonly PlatformServiceBusOptions _ServiceBusOptions;
+    private readonly IAzureClientFactory<ServiceBusClient> _ServiceBusClientFactory;
 
     private ServiceBusClient _ServiceBusClient;
     private ServiceBusProcessor _ServiceBusProcessor;
+    private IServiceBusMessageHandler _ServicBusMessageHandler;
 
-    public ServiceBusMessageProcessor(
+    public ServiceBusTopicMessageProcessor(
+        IAzureClientFactory<ServiceBusClient> serviceBusClientFactory,
         IOptions<PlatformServiceBusOptions> platformServiceBusOptions,
-        IServiceBusMessageHandler messageHandler,
-        ILogger<ServiceBusMessageProcessor> logger)
+        ILogger<ServiceBusQueueMessageProcessor> logger)
     {
+        _ServiceBusClientFactory = serviceBusClientFactory;
         _ServiceBusOptions = platformServiceBusOptions.Value;
-        _ServicBusMessageHandler = messageHandler;
         _Logger = logger;
 
         _ServiceBusClientOptions = new ServiceBusClientOptions
@@ -33,15 +35,16 @@ public class ServiceBusMessageProcessor : IAsyncDisposable
         };
     }
 
-    public async Task Start()
+    public async Task Start(string subscription, IServiceBusMessageHandler messageHandler)
     {
-        _ServiceBusClient = new ServiceBusClient(
-            _ServiceBusOptions.ConnectionString.SampleApp,
-            _ServiceBusClientOptions);
+        _ServiceBusClient = _ServiceBusClientFactory.CreateClient("SampleAppServiceBusClient");
 
         _ServiceBusProcessor = _ServiceBusClient.CreateProcessor(
-            _ServiceBusOptions.QueueName.OrderCreated,
+            _ServiceBusOptions.TopicName.OrderCreated,
+            subscription,
             new ServiceBusProcessorOptions());
+
+        _ServicBusMessageHandler = messageHandler;
 
         _ServiceBusProcessor.ProcessMessageAsync += MessageHandler;
         _ServiceBusProcessor.ProcessErrorAsync += ErrorHandler;
@@ -51,7 +54,7 @@ public class ServiceBusMessageProcessor : IAsyncDisposable
 
     private Task ErrorHandler(ProcessErrorEventArgs arg)
     {
-        _Logger.LogError(arg.Exception, "Error processing queue message");
+        _Logger.LogError(arg.Exception, "Error processing topic message");
         return Task.FromResult(-1);
     }
 

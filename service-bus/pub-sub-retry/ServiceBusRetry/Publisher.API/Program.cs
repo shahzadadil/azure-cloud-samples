@@ -6,7 +6,8 @@ using Platform.Config;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.Configure<PlatformOptions>(builder.Configuration.GetSection(PlatformOptions.Key));
+builder.Services.Configure<PlatformOptions>(
+    builder.Configuration.GetSection(PlatformOptions.Key));
 
 builder.Services
     .AddAzureClients(azClientBuilder =>

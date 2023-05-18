@@ -4,7 +4,6 @@ namespace Publisher.API.Controllres;
 
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 using Azure.Messaging.ServiceBus;
 
@@ -32,7 +31,7 @@ public class OrderController : ControllerBase
         _PlatformOptions = platformOptions.Value;
     }
 
-    [HttpPost]
+    [HttpPost("queue")]
     public async Task Post([FromBody] OrderModel orderModel)
     {
         var serviceBusClient = _ServiceBusClientFactory.CreateClient("SampleAppServiceBusClient");
@@ -49,4 +48,25 @@ public class OrderController : ControllerBase
 
         await sender.SendMessageAsync(serviceBusMessage);
     }
+
+    [HttpPost("topic")]
+    public async Task PostToTopic([FromBody] OrderModel orderModel)
+    {
+        var serviceBusClient = _ServiceBusClientFactory.CreateClient("SampleAppServiceBusClient");
+
+        var sender = serviceBusClient.CreateSender(
+            _PlatformOptions.ServiceBus.TopicName.OrderCreated);
+
+        OrderCreated message = new()
+        {
+            OrderId = orderModel.Id,
+            Amount = orderModel.Amount,
+            CreatedOn = DateTime.UtcNow,
+        };
+
+        ServiceBusMessage serviceBusMessage = new(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(message)));
+
+        await sender.SendMessageAsync(serviceBusMessage);
+    }
+
 }
