@@ -11,8 +11,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Platform", "Platform\Platfo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cloud.Azure", "Azure.Core\Cloud.Azure.csproj", "{004E8A04-B29D-4B0E-97E1-9607F01EB4D3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ordering.Function", "Ordering.Function\Ordering.Function.csproj", "{8D9CA50D-3B16-46AA-BB77-17DFA43DEDD5}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,10 +33,6 @@ Global
 		{004E8A04-B29D-4B0E-97E1-9607F01EB4D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{004E8A04-B29D-4B0E-97E1-9607F01EB4D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{004E8A04-B29D-4B0E-97E1-9607F01EB4D3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8D9CA50D-3B16-46AA-BB77-17DFA43DEDD5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8D9CA50D-3B16-46AA-BB77-17DFA43DEDD5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8D9CA50D-3B16-46AA-BB77-17DFA43DEDD5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8D9CA50D-3B16-46AA-BB77-17DFA43DEDD5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -23,17 +23,17 @@ builder.Services
         azClientBuilder
             .AddServiceBusClient(platformOptions.ServiceBus.ConnectionString.SampleApp)
             .WithCredential(new DefaultAzureCredential())
-            .WithName("SampleAppServiceBusClient");
+            .WithName(platformOptions.ServiceBus.Namespace.SampleApp);
     });
 
 // Add services to the container.
 builder.Services.AddRazorPages();
 
-builder.Services.AddSingleton<IServiceBusMessageHandler, OrderMessageHandler>();
-builder.Services.AddSingleton<ServiceBusQueueMessageProcessor>();
-builder.Services.AddTransient<ServiceBusTopicMessageProcessor>();
-builder.Services.AddSingleton<FulfilmentHandler>();
-builder.Services.AddSingleton<DeliveryHandler>();
+builder.Services.AddSingleton<OrderMessageHandler>();
+//builder.Services.AddSingleton<ServiceBusQueueMessageProcessor>();
+//builder.Services.AddTransient<ServiceBusTopicMessageProcessor>();
+//builder.Services.AddSingleton<FulfilmentHandler>();
+//builder.Services.AddSingleton<DeliveryHandler>();
 
 var app = builder.Build();
 
@@ -54,29 +54,29 @@ app.UseAuthorization();
 
 app.MapRazorPages();
 
-var queueOrderProcessor = app.Services.GetService<ServiceBusQueueMessageProcessor>();
+var orderCreatedQueueMessageHandler = app.Services.GetService<OrderMessageHandler>();
 
-if (queueOrderProcessor is not null)
+if (orderCreatedQueueMessageHandler is not null)
 {
-    await queueOrderProcessor.Start();
+    orderCreatedQueueMessageHandler.StartProcessing();
 }
 
-var fulfilmentTopicSubscription = app.Services.GetService<ServiceBusTopicMessageProcessor>();
+//var fulfilmentTopicSubscription = app.Services.GetService<ServiceBusTopicMessageProcessor>();
 
-if (fulfilmentTopicSubscription is not null)
-{
-    await fulfilmentTopicSubscription.Start(
-        platformOptions.ServiceBus.Subscriptions.Fulfilment,
-        app.Services.GetService<FulfilmentHandler>());
-}
+//if (fulfilmentTopicSubscription is not null)
+//{
+//    await fulfilmentTopicSubscription.Start(
+//        platformOptions.ServiceBus.Subscriptions.Fulfilment,
+//        app.Services.GetService<FulfilmentHandler>());
+//}
 
-var deliveryTopicSubscription = app.Services.GetService<ServiceBusTopicMessageProcessor>();
+//var deliveryTopicSubscription = app.Services.GetService<ServiceBusTopicMessageProcessor>();
 
-if (deliveryTopicSubscription is not null)
-{
-    await deliveryTopicSubscription.Start(
-        platformOptions.ServiceBus.Subscriptions.Delivery,
-        app.Services.GetService<DeliveryHandler>());
-}
+//if (deliveryTopicSubscription is not null)
+//{
+//    await deliveryTopicSubscription.Start(
+//        platformOptions.ServiceBus.Subscriptions.Delivery,
+//        app.Services.GetService<DeliveryHandler>());
+//}
 
 app.Run();

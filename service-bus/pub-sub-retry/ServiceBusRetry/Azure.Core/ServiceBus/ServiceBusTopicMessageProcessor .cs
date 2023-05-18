@@ -64,7 +64,7 @@ public class ServiceBusTopicMessageProcessor : IAsyncDisposable
 
         try
         {
-            await _ServicBusMessageHandler.HandleAsync(message);
+            _ServicBusMessageHandler.Handle(message);
             await arg.CompleteMessageAsync(arg.Message);
         }
         catch (Exception ex)
