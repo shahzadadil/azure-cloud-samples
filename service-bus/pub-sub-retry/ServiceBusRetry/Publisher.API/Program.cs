@@ -4,26 +4,34 @@ using Microsoft.Extensions.Azure;
 
 using Platform.Config;
 
+using Publisher.API.MessageSenders;
+
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.Configure<PlatformOptions>(
-    builder.Configuration.GetSection(PlatformOptions.Key));
+PlatformOptions platformOptions = new();
+
+var platformOptionSection = builder.Configuration.GetSection(PlatformOptions.Key);
+platformOptionSection.Bind(platformOptions);
+
+builder.Services.Configure<PlatformOptions>(platformOptionSection);
+
+builder.Services.Configure<PlatformServiceBusOptions>(
+    builder.Configuration.GetSection(
+        $"{PlatformOptions.Key}:{PlatformServiceBusOptions.Key}"));
 
 builder.Services
     .AddAzureClients(azClientBuilder =>
     {
-        PlatformOptions platformOptions = new();
-        builder.Configuration.GetSection(PlatformOptions.Key).Bind(platformOptions);
-
         azClientBuilder
             .AddServiceBusClient(platformOptions.ServiceBus.ConnectionString.SampleApp)
             .WithCredential(new DefaultAzureCredential())
-            .WithName("SampleAppServiceBusClient");
+            .WithName(platformOptions.ServiceBus.Namespace.SampleApp);
     });
+
+builder.Services.RegisterMessageSenders();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
@@ -31,8 +39,6 @@ var app = builder.Build();
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
-    app.UseSwagger();
-    app.UseSwaggerUI();
 }
 
 app.UseStaticFiles();

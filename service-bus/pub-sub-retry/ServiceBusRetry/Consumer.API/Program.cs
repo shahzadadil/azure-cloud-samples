@@ -1,7 +1,5 @@
 using Azure.Identity;
 
-using Cloud.Azure.ServiceBus;
-
 using Consumer.API.EventHandlers;
 
 using Microsoft.Extensions.Azure;
@@ -9,13 +7,16 @@ using Microsoft.Extensions.Azure;
 using Platform.Config;
 
 var builder = WebApplication.CreateBuilder(args);
+
 PlatformOptions platformOptions = new();
 
 var platformOptionSection = builder.Configuration.GetSection(PlatformOptions.Key);
 platformOptionSection.Bind(platformOptions);
 
 builder.Services.Configure<PlatformOptions>(platformOptionSection);
-builder.Services.Configure<PlatformServiceBusOptions>(builder.Configuration.GetSection($"{PlatformOptions.Key}:{PlatformServiceBusOptions.Key}"));
+builder.Services.Configure<PlatformServiceBusOptions>(
+    builder.Configuration.GetSection(
+        $"{PlatformOptions.Key}:{PlatformServiceBusOptions.Key}"));
 
 builder.Services
     .AddAzureClients(azClientBuilder =>

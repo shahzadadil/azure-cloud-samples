@@ -2,41 +2,31 @@
 
 namespace Publisher.API.Controllres;
 
-using System.Text;
-using System.Text.Json;
-
-using Azure.Messaging.ServiceBus;
-
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Azure;
-using Microsoft.Extensions.Options;
 
-using Platform.Config;
 using Platform.Messages;
 
+using Publisher.API.MessageSenders;
 using Publisher.API.Models;
 
 [Route("api/[controller]")]
 [ApiController]
 public class OrderController : ControllerBase
 {
-    private readonly IAzureClientFactory<ServiceBusClient> _ServiceBusClientFactory;
-    private readonly PlatformOptions _PlatformOptions;
+    private readonly OrderCreatedMessageSender _OrderCreatedMessageSender;
+    private readonly OrderCreatedMessagePublisher _OrderCreatedMessagePublisher;
 
     public OrderController(
-        IAzureClientFactory<ServiceBusClient> serviceBusClientFactory,
-        IOptions<PlatformOptions> platformOptions)
+        OrderCreatedMessageSender orderCreatedMessageSender,
+        OrderCreatedMessagePublisher orderCreatedMessagePublisher)
     {
-        _ServiceBusClientFactory = serviceBusClientFactory;
-        _PlatformOptions = platformOptions.Value;
+        _OrderCreatedMessageSender = orderCreatedMessageSender;
+        _OrderCreatedMessagePublisher = orderCreatedMessagePublisher;
     }
 
     [HttpPost("queue")]
     public async Task Post([FromBody] OrderModel orderModel)
     {
-        var serviceBusClient = _ServiceBusClientFactory.CreateClient("SampleAppServiceBusClient");
-        var sender = serviceBusClient.CreateSender(_PlatformOptions.ServiceBus.QueueName.OrderCreated);
-
         OrderCreated message = new()
         {
             OrderId = orderModel.Id,
@@ -44,25 +34,14 @@ public class OrderController : ControllerBase
             CreatedOn = DateTime.UtcNow,
         };
 
-        ServiceBusMessage serviceBusMessage = new(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(message)));
-
-        if (orderModel.ScheduleOffsetSeconds >= 0)
-        {
-            serviceBusMessage.ScheduledEnqueueTime = DateTimeOffset.UtcNow.AddSeconds(
-                orderModel.ScheduleOffsetSeconds);
-        }
-
-        await sender.SendMessageAsync(serviceBusMessage);
+        await _OrderCreatedMessageSender.SchdeuleMessageAsync(
+            message,
+            DateTimeOffset.UtcNow.AddSeconds(orderModel.ScheduleOffsetSeconds));
     }
 
     [HttpPost("topic")]
     public async Task PostToTopic([FromBody] OrderModel orderModel)
     {
-        var serviceBusClient = _ServiceBusClientFactory.CreateClient("SampleAppServiceBusClient");
-
-        var sender = serviceBusClient.CreateSender(
-            _PlatformOptions.ServiceBus.TopicName.OrderCreated);
-
         OrderCreated message = new()
         {
             OrderId = orderModel.Id,
@@ -70,15 +49,9 @@ public class OrderController : ControllerBase
             CreatedOn = DateTime.UtcNow,
         };
 
-        ServiceBusMessage serviceBusMessage = new(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(message)));
-
-        if (orderModel.ScheduleOffsetSeconds >= 0)
-        {
-            serviceBusMessage.ScheduledEnqueueTime = DateTimeOffset.UtcNow.AddSeconds(
-                orderModel.ScheduleOffsetSeconds);
-        }
-
-        await sender.SendMessageAsync(serviceBusMessage);
+        await _OrderCreatedMessagePublisher.SchdeuleMessageAsync(
+            message,
+            DateTimeOffset.UtcNow.AddSeconds(orderModel.ScheduleOffsetSeconds));
     }
 
 }
