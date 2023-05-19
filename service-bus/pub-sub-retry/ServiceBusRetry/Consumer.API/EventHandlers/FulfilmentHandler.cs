@@ -1,35 +1,46 @@
 ﻿namespace Consumer.API.EventHandlers;
 
-using System.Text.Json;
+using System.Threading.Tasks;
 
 using Azure.Messaging.ServiceBus;
 
 using Cloud.Azure.ServiceBus;
 
+using Microsoft.Extensions.Azure;
+using Microsoft.Extensions.Options;
+
+using Platform.Config;
 using Platform.Messages;
 
-public class FulfilmentHandler : IServiceBusMessageHandler
+public class FulfilmentHandler : ServiceBusMessageProcessor<OrderCreated>
 {
-    private readonly ILogger<FulfilmentHandler> _Logger;
+    private readonly PlatformServiceBusOptions _ServiceBusOptions;
 
-    public FulfilmentHandler(ILogger<FulfilmentHandler> logger)
+    public FulfilmentHandler(
+        IAzureClientFactory<ServiceBusClient> serviceBusClientFactory,
+        ILogger<FulfilmentHandler> logger,
+        IOptions<PlatformServiceBusOptions> serviceBusOptions) : base(serviceBusClientFactory, logger)
     {
-        _Logger = logger;
+        _ServiceBusOptions = serviceBusOptions.Value;
     }
 
-    public void Handle(ServiceBusReceivedMessage message)
+    protected override String Namespace => _ServiceBusOptions.Namespace.SampleApp;
+    protected override String QueueOrTopicName => _ServiceBusOptions.TopicName.OrderCreated;
+    protected override String Subscription => _ServiceBusOptions.Subscriptions.Fulfilment;
+
+
+    protected override Task HandleMessageAsync(OrderCreated orderCreatedMessage)
     {
-        var orderMessage = JsonSerializer.Deserialize<OrderCreated>(message.Body.ToString());
+        ArgumentNullException.ThrowIfNull(orderCreatedMessage, nameof(orderCreatedMessage));
 
-        if (orderMessage is null)
-            throw new ArgumentNullException(nameof(orderMessage));
-
-        if (orderMessage.Amount <= 0)
+        if (orderCreatedMessage.Amount <= 0)
         {
-            _Logger.LogError($"Order amount: {orderMessage.Amount} is invalid");
+            _Logger.LogError($"Order amount: {orderCreatedMessage.Amount} is invalid");
             throw new InvalidOperationException("amount should be greated than 0");
         }
 
-        _Logger.LogInformation($"Fulfilment received: {orderMessage}");
+        _Logger.LogInformation($"Fulfilment received: {orderCreatedMessage.OrderId}");
+
+        return Task.CompletedTask;
     }
 }

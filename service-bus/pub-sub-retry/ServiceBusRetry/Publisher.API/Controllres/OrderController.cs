@@ -46,6 +46,12 @@ public class OrderController : ControllerBase
 
         ServiceBusMessage serviceBusMessage = new(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(message)));
 
+        if (orderModel.ScheduleOffsetSeconds >= 0)
+        {
+            serviceBusMessage.ScheduledEnqueueTime = DateTimeOffset.UtcNow.AddSeconds(
+                orderModel.ScheduleOffsetSeconds);
+        }
+
         await sender.SendMessageAsync(serviceBusMessage);
     }
 
@@ -65,6 +71,12 @@ public class OrderController : ControllerBase
         };
 
         ServiceBusMessage serviceBusMessage = new(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(message)));
+
+        if (orderModel.ScheduleOffsetSeconds >= 0)
+        {
+            serviceBusMessage.ScheduledEnqueueTime = DateTimeOffset.UtcNow.AddSeconds(
+                orderModel.ScheduleOffsetSeconds);
+        }
 
         await sender.SendMessageAsync(serviceBusMessage);
     }

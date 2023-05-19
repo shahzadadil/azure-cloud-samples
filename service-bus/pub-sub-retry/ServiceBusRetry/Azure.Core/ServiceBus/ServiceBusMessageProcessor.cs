@@ -21,7 +21,6 @@ public abstract class ServiceBusMessageProcessor<TMessage> : IAsyncDisposable
     protected abstract string QueueOrTopicName { get; }
     protected virtual string Subscription { get; }
 
-
     public ServiceBusMessageProcessor(
         IAzureClientFactory<ServiceBusClient> serviceBusClientFactory,
         ILogger<ServiceBusMessageProcessor<TMessage>> logger)

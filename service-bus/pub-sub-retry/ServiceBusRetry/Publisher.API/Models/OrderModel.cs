@@ -9,4 +9,5 @@ public class OrderModel
 
     [Range(0, 50000)]
     public double Amount  { get; set; }
+    public Int32 ScheduleOffsetSeconds { get; set; }
 }

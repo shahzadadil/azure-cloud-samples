@@ -29,11 +29,7 @@ builder.Services
 // Add services to the container.
 builder.Services.AddRazorPages();
 
-builder.Services.AddSingleton<OrderMessageHandler>();
-//builder.Services.AddSingleton<ServiceBusQueueMessageProcessor>();
-//builder.Services.AddTransient<ServiceBusTopicMessageProcessor>();
-//builder.Services.AddSingleton<FulfilmentHandler>();
-//builder.Services.AddSingleton<DeliveryHandler>();
+builder.Services.RegisterEventHandlers();
 
 var app = builder.Build();
 
@@ -61,22 +57,19 @@ if (orderCreatedQueueMessageHandler is not null)
     orderCreatedQueueMessageHandler.StartProcessing();
 }
 
-//var fulfilmentTopicSubscription = app.Services.GetService<ServiceBusTopicMessageProcessor>();
+var fulfilmentTopicSubscription = app.Services.GetService<FulfilmentHandler>();
 
-//if (fulfilmentTopicSubscription is not null)
-//{
-//    await fulfilmentTopicSubscription.Start(
-//        platformOptions.ServiceBus.Subscriptions.Fulfilment,
-//        app.Services.GetService<FulfilmentHandler>());
-//}
+if (fulfilmentTopicSubscription is not null)
+{
+    fulfilmentTopicSubscription.StartProcessing();
+}
 
-//var deliveryTopicSubscription = app.Services.GetService<ServiceBusTopicMessageProcessor>();
+var deliveryTopicSubscription = app.Services.GetService<DeliveryHandler>();
 
-//if (deliveryTopicSubscription is not null)
-//{
-//    await deliveryTopicSubscription.Start(
-//        platformOptions.ServiceBus.Subscriptions.Delivery,
-//        app.Services.GetService<DeliveryHandler>());
-//}
+if (deliveryTopicSubscription is not null)
+{
+    deliveryTopicSubscription.StartProcessing();
+}
+
 
 app.Run();
