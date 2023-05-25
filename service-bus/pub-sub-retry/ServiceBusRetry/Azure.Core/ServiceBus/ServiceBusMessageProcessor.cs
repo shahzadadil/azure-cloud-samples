@@ -15,7 +15,7 @@ using Microsoft.Extensions.Logging;
 public abstract class ServiceBusMessageProcessor<TMessage> : IAsyncDisposable
 {
     private readonly IAzureClientFactory<ServiceBusClient> _ServiceBusClientFactory;
-    
+
     private ServiceBusClient _ServiceBusClient;
     private ServiceBusProcessor _ServiceBusProcessor;
 
@@ -61,7 +61,7 @@ public abstract class ServiceBusMessageProcessor<TMessage> : IAsyncDisposable
         _ServiceBusProcessor.ProcessMessageAsync += ProcessMessageAsync;
         _ServiceBusProcessor.ProcessErrorAsync += ProcessErrorAsync;
 
-        _ServiceBusProcessor.StartProcessingAsync();
+        _ = _ServiceBusProcessor.StartProcessingAsync();
     }
 
     protected virtual Task ProcessErrorAsync(ProcessErrorEventArgs arg)

@@ -24,7 +24,6 @@ builder.Services
     {
         azClientBuilder
             .AddServiceBusClient(platformOptions.ServiceBus.ConnectionString.SampleApp)
-            .WithCredential(new DefaultAzureCredential())
             .WithName(platformOptions.ServiceBus.Namespace.SampleApp);
     });
 

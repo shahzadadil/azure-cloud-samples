@@ -1,3 +1,30 @@
+# Introduction
+This is a POC for interaction with Service Bus using queues and topics
+
+# Purpose of POC
+- To demonstrate working of point to point and multiple subscriptions mode f message delivery through Azure Service Bus
+- To experiment with features and settings avilable
+- To set up a ready to use codebase with minor modificaitons
+
+# Getting Started
+## PreRequisites
+- .NET SDK
+- Visual Studio or VsCode
+- Azure Account with subscription
+- Azure CLI (Optional)<sup>1</sup>
+- Terraform (Optional)<sup>1</sup>
+
+
+1. *Required only when trying to create Azure resources through command line and not manually.*
+## Setup and Execution
+
+## Usage
+For a detailed instruction on how to use the infrastructure in your own solutions, please refer to the documentation on [Usage](/ServiceBusRetry/Azure.Core/usage.md)
+
+
+# Service Bus
+Azure Service Bus is used to broker messages between producers and consumers. It decouples the components and handles the message managenemt/delivery.
+
 ## Message Deferral
 It possible to defer a message to a later point for processing. The message becomes unavailable for receiving. The application has the ownership of receiving the message afterwards using the sequence number or message reference. The message will not be auto delivered.
 

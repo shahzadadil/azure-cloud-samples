@@ -41,5 +41,6 @@ public class DeliveryHandler : ServiceBusMessageProcessor<OrderCreated>
         _Logger.LogInformation($"Delivery instruction received: {orderCreatedMessage.OrderId}");
 
         return Task.CompletedTask;
+
     }
 }
