@@ -28,7 +28,6 @@ public class DeliveryHandler : ServiceBusMessageProcessor<OrderCreated>
     protected override String QueueOrTopicName => _ServiceBusOptions.TopicName.OrderCreated;
     protected override String Subscription => _ServiceBusOptions.Subscriptions.Delivery;
 
-
     protected override Task HandleMessageAsync(OrderCreated orderCreatedMessage)
     {
         ArgumentNullException.ThrowIfNull(orderCreatedMessage, nameof(orderCreatedMessage));

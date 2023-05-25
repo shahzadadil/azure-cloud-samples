@@ -8,6 +8,10 @@ using global::Azure.Messaging.ServiceBus;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Logging;
 
+/// <summary>
+/// Receive and process messages from service bus queue or topic. Inherit from this and add details. Implement the handler.
+/// </summary>
+/// <typeparam name="TMessage">Type of message to receive</typeparam>
 public abstract class ServiceBusMessageProcessor<TMessage> : IAsyncDisposable
 {
     private readonly IAzureClientFactory<ServiceBusClient> _ServiceBusClientFactory;
@@ -39,7 +43,7 @@ public abstract class ServiceBusMessageProcessor<TMessage> : IAsyncDisposable
         if (_ServiceBusClient is null)
         {
             throw new ServiceBusException(
-                "Error creating service bus client from factory",
+                $"Error creating service bus client from factory for namespace ({Namespace})",
                 ServiceBusFailureReason.GeneralError);
         }
 
@@ -50,7 +54,7 @@ public abstract class ServiceBusMessageProcessor<TMessage> : IAsyncDisposable
         if (_ServiceBusProcessor is null)
         {
             throw new ServiceBusException(
-                "Error creating service bus processor from client",
+                $"Error creating service bus processor from client for queue/topic ({QueueOrTopicName}), subscription ({Subscription})",
                 ServiceBusFailureReason.GeneralError);
         }
 

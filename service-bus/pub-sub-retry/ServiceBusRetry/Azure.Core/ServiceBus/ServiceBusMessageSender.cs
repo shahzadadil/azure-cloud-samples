@@ -9,6 +9,10 @@ using global::Azure.Messaging.ServiceBus;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Logging;
 
+/// <summary>
+/// Send messages to service bus queue or topic. Inherit from this and add details. Implement the handler.
+/// </summary>
+/// <typeparam name="TMessage">The type of message to be sent</typeparam>
 public abstract class ServiceBusMessageSender<TMessage> : IAsyncDisposable
 {
     private readonly IAzureClientFactory<ServiceBusClient> _ServiceBusClientFactory;
@@ -36,7 +40,7 @@ public abstract class ServiceBusMessageSender<TMessage> : IAsyncDisposable
         if (_ServiceBusClient is null)
         {
             throw new ServiceBusException(
-                "Error creating service bus client from factory",
+                $"Error creating service bus client from factory for namespace ({Namespace})",
                 ServiceBusFailureReason.GeneralError);
         }
 
@@ -45,7 +49,7 @@ public abstract class ServiceBusMessageSender<TMessage> : IAsyncDisposable
         if (_ServiceBusSender is null)
         {
             throw new ServiceBusException(
-                "Error creating service bus sender from client",
+                $"Error creating service bus processor from client for queue/topic ({QueueOrTopicName})",
                 ServiceBusFailureReason.GeneralError);
         }
     }
@@ -61,10 +65,11 @@ public abstract class ServiceBusMessageSender<TMessage> : IAsyncDisposable
     {
         Initialise();
 
-        ServiceBusMessage serviceBusMessage = new(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(message)))
-        {
-            ScheduledEnqueueTime = scheduleOffset
-        };
+        ServiceBusMessage serviceBusMessage = new(
+            Encoding.UTF8.GetBytes(JsonSerializer.Serialize(message)))
+            {
+                ScheduledEnqueueTime = scheduleOffset
+            };
 
         await _ServiceBusSender.SendMessageAsync(serviceBusMessage);
     }
