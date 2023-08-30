@@ -1,0 +1,54 @@
+﻿<policies>
+	<inbound>
+		<base />
+		<!-- Ensure presence of Authorization header -->
+		<choose>
+			<when condition="@(!context.Request.Headers.ContainsKey("Authorization"))">
+				<return-response>
+					<set-status code="401" reason="Unauthorized" />
+					<set-header name="WWW-Authenticate" exists-action="append">
+						<value>@("Bearer realm="+context.Request.OriginalUrl.Host)</value>
+					</set-header>
+				</return-response>
+			</when>
+		</choose>
+		<!-- Check for cached authorization status for the subject -->
+		<!--<cache-lookup-value key="@(context.Request.Headers.GetValueOrDefault("Authorization"))" variable-name="status"/>-->
+		<choose>
+			<!--
+			    If a cache miss call external authorizer
+		    -->
+			<when condition="@(!context.Request.Headers.ContainsKey("x-dom-access"))">
+				<!-- Invoke -->
+				<send-request mode="new" response-variable-name="response" timeout="10" ignore-error="false">
+					<set-url>{{Auth-URL}}</set-url>
+					<set-method>GET</set-method>
+					<set-header name="Authorization" exists-action="override">
+						<value>@(context.Request.Headers.GetValueOrDefault("Authorization"))</value>
+					</set-header>
+				</send-request>
+
+				<!-- Extract authorization status from authorizer's response -->
+				<set-header name="x-dom-access">
+					<value>@(((IResponse)context.Variables["response"]).Headers["x-dom-access"][0])</value>
+				</set-header>
+				<!-- Cache authorization result -->
+				<!--<cache-store-value key="@(context.Request.Headers.GetValueOrDefault("Authorization"))" value="@((string)context.Variables["status"])" duration="5"/>-->
+			</when>
+		</choose>
+		<!-- Authorize the request -->
+		<choose>
+			<when condition="@(context.Response.StatusCode == 403)">
+				<return-response>
+					<set-status code="403" reason="Forbidden" />
+				</return-response>
+			</when>
+		</choose>
+	</inbound>
+	<backend>
+		<base />
+	</backend>
+	<outbound>
+		<base />
+	</outbound>
+</policies>

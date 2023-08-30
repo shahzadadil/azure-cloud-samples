@@ -7,16 +7,16 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
-COPY ["MSA.Fulfilment.API/MSA.Fulfilment.API.csproj", "MSA.Fulfilment.API/"]
-RUN dotnet restore "MSA.Fulfilment.API/MSA.Fulfilment.API.csproj"
-COPY . .	
-WORKDIR "/src/MSA.Fulfilment.API"
-RUN dotnet build "MSA.Fulfilment.API.csproj" -c Release -o /app/build
+COPY ["Auth.API/Auth.API.csproj", "Auth.API/"]
+RUN dotnet restore "Auth.API/Auth.API.csproj"
+COPY . .
+WORKDIR "/src/Auth.API"
+RUN dotnet build "Auth.API.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "MSA.Fulfilment.API.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "Auth.API.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "MSA.Fulfilment.API.dll"]
+ENTRYPOINT ["dotnet", "Auth.API.dll"]

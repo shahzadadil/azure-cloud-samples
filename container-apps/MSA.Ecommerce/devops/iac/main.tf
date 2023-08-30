@@ -29,29 +29,37 @@ resource "azurerm_log_analytics_workspace" "msacontainerapplogworkspace" {
 }
 
 resource "azurerm_container_app_environment" "msacontainerappenv" {
-  name                       = "msacomtainerappenv"
+  name                       = "msacontainerappenv"
   location                   = "southeastasia"
   resource_group_name        = azurerm_resource_group.msacontainerapprg.name
   log_analytics_workspace_id = azurerm_log_analytics_workspace.msacontainerapplogworkspace.id
 }
 
-resource "azurerm_container_app" "msaordercontainerapp" {
-  name                         = "msaordercontainerapp"
-  container_app_environment_id = azurerm_container_app_environment.msacontainerappenv.id
-  resource_group_name          = azurerm_resource_group.msacontainerapprg.name
-  revision_mode                = "Single"
-  
-  identity{
-    type = "SystemAssigned"
-  }
-
-  template {
-    container {
-      name   = "msaorderapi"
-      image  = "msaorderapi:dev"
-      cpu    = 0.25
-      memory = "0.5Gi"
-    }
-  }
+resource "azurerm_container_registry" "msacontainerregistry" {
+  name                = "msaacrpoc"
+  resource_group_name = azurerm_resource_group.msacontainerapprg.name
+  location            = azurerm_resource_group.msacontainerapprg.location
+  sku                 = "Basic"
+  admin_enabled       = true
 }
+
+# resource "azurerm_container_app" "msaordercontainerapp" {
+#   name                         = "msaordercontainerapp"
+#   container_app_environment_id = azurerm_container_app_environment.msacontainerappenv.id
+#   resource_group_name          = azurerm_resource_group.msacontainerapprg.name
+#   revision_mode                = "Single"
+  
+#   identity{
+#     type = "SystemAssigned"
+#   }
+
+#   template {
+#     container {
+#       name   = "msaorderapi"
+#       image  = "msaorderapi:dev"
+#       cpu    = 0.25
+#       memory = "0.5Gi"
+#     }
+#   }
+# }
 

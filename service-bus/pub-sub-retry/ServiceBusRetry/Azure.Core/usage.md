@@ -28,18 +28,15 @@ Inherit the classes and create your oewn implementation on how to handle specifi
 ```
 public class OrderMessageHandler : ServiceBusMessageProcessor<OrderCreated>
 {
-    private readonly PlatformServiceBusOptions _ServiceBusOptions;
-
     public OrderMessageHandler(
         IAzureClientFactory<ServiceBusClient> serviceBusClientFactory,
-        ILogger<OrderMessageHandler> logger,
-        IOptions<PlatformServiceBusOptions> serviceBusOptions) : base(serviceBusClientFactory, logger)
+        ILogger<OrderMessageHandler> logger) : base(serviceBusClientFactory, logger)
     {
         _ServiceBusOptions = serviceBusOptions.Value;
     }
 
-    protected override String Namespace => _ServiceBusOptions.Namespace.SampleApp;
-    protected override String QueueOrTopicName => _ServiceBusOptions.QueueName.OrderCreated;
+    protected override String Namespace => "NamespaceName";
+    protected override String QueueOrTopicName => "QueueOrTopicName";
 
     protected override Task HandleMessageAsync(OrderCreated orderCreatedMessage)
     {
@@ -47,6 +44,8 @@ public class OrderMessageHandler : ServiceBusMessageProcessor<OrderCreated>
     }
 }
 ```
+- Your implementation should inherit from the infrastrtcture class
+- 
 
 ### Setup Azure Service Bus client factory
 in your projects where we need to consume the implementation setup the factory to crete service bus clients.

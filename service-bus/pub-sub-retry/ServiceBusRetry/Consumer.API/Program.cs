@@ -23,6 +23,13 @@ builder.Services
     {
         azClientBuilder
             .AddServiceBusClient(platformOptions.ServiceBus.ConnectionString.SampleApp)
+            .ConfigureOptions(options =>
+            {
+                options.RetryOptions = new()
+                {
+                    Delay = TimeSpan.FromSeconds(5)
+                };
+            })
             .WithName(platformOptions.ServiceBus.Namespace.SampleApp);
     });
 
@@ -41,7 +48,6 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();

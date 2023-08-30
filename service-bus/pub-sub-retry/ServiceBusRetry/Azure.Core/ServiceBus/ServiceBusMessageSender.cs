@@ -29,8 +29,8 @@ public abstract class ServiceBusMessageSender<TMessage> : IAsyncDisposable
         IAzureClientFactory<ServiceBusClient> serviceBusClientFactory,
         ILogger<ServiceBusMessageSender<TMessage>> logger)
     {
-        _Logger = logger;
-        _ServiceBusClientFactory = serviceBusClientFactory;
+        _Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _ServiceBusClientFactory = serviceBusClientFactory ?? throw new ArgumentNullException(nameof(serviceBusClientFactory));
     }
 
     private void Initialise()
